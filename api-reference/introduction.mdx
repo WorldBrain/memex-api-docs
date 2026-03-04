@@ -1,33 +1,33 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "API overview"
+description: "Memex REST endpoints and MCP wrapper tools"
 ---
 
+Memex exposes two API surfaces:
+
+- **REST API** (canonical): direct HTTP endpoints.
+- **MCP server**: tool interface that wraps the same backend handlers.
+
+## Base URLs
+
+- REST (public router): `https://api.memex.garden`
+- REST (direct Supabase): `https://rubctkzqxcdgkbbcprnu.supabase.co/functions/v1`
+- MCP server: `https://mcp.memex.garden/mcp`
+
+## REST vs MCP
+
+| Surface | Auth | Billing behavior | Backing handlers |
+| --- | --- | --- | --- |
+| REST | `Authorization: Bearer <access_token>` | No MCP credit deductions by default | `searchContentApi`, `saveContentByUrl` |
+| MCP | `x-user-id` + `x-api-key` (or `userId` / `apiKey` query params) | Applies MCP credit deductions for `search_content` | Same handlers, with MCP wrapper flags |
+
+## Tool mapping
+
+| MCP tool | Equivalent REST endpoint | Wrapper behavior |
+| --- | --- | --- |
+| `search_content` | `POST /search-content` | Forces `includeReferences=true` and `applyBilling=true` |
+| `save_content_by_url` | `POST /save-content-by-url` | Passes through arguments unchanged |
+
 <Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
+  If you only need HTTP integration, use the REST API pages in this section. The MCP pages describe protocol/auth differences and billing semantics.
 </Note>
-
-## Welcome
-
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
-
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
-
-## Authentication
-
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
-
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```

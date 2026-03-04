@@ -1,0 +1,64 @@
+---
+title: "MCP server"
+description: "How Memex exposes REST handlers through MCP tools"
+---
+
+The Memex MCP server is available at:
+
+`https://mcp.memex.garden/mcp`
+
+It exposes two tools:
+
+- `search_content`
+- `save_content_by_url`
+
+Both call the same backend handlers as the REST API.
+
+## Authentication
+
+Send either:
+
+- Headers: `x-user-id` and `x-api-key`
+- Query params: `userId` and `apiKey`
+
+The API key is validated against the user's MCP settings.
+
+## List tools
+
+```bash
+curl -X POST "https://mcp.memex.garden/mcp" \
+  -H "Content-Type: application/json" \
+  -H "x-user-id: YOUR_USER_ID" \
+  -H "x-api-key: YOUR_MCP_API_KEY" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "tools-list-1",
+    "method": "tools/list",
+    "params": {}
+  }'
+```
+
+## Call a tool
+
+```bash
+curl -X POST "https://mcp.memex.garden/mcp" \
+  -H "Content-Type: application/json" \
+  -H "x-user-id: YOUR_USER_ID" \
+  -H "x-api-key: YOUR_MCP_API_KEY" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "call-1",
+    "method": "tools/call",
+    "params": {
+      "name": "search_content",
+      "arguments": {
+        "query": "vector databases",
+        "limit": 5
+      }
+    }
+  }'
+```
+
+<Warning>
+  MCP `search_content` deducts credits (base query + optional rerank surcharge). Direct REST calls do not apply MCP billing unless internal flags are explicitly enabled.
+</Warning>

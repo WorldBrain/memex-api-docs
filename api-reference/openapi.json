@@ -1,16 +1,18 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "Memex REST API",
+    "description": "Canonical REST endpoints used by Memex. The MCP server wraps these same handlers.",
+    "version": "2026-03-04"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://api.memex.garden",
+      "description": "Public edge router"
+    },
+    {
+      "url": "https://rubctkzqxcdgkbbcprnu.supabase.co/functions/v1",
+      "description": "Direct Supabase Edge Functions"
     }
   ],
   "security": [
@@ -19,76 +21,60 @@
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+    "/search-content": {
+      "post": {
+        "operationId": "searchContent",
+        "summary": "Unified search across saved Memex content",
+        "description": "Returns content results, extra entities, and resolved references. Supports optional reranking.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchContentRequest"
+              },
+              "examples": {
+                "basic": {
+                  "summary": "Search with rerank",
+                  "value": {
+                    "query": "vector databases",
+                    "limit": 20,
+                    "offset": 0,
+                    "enableRerank": true,
+                    "rerankWindow": 100
                   }
                 }
               }
             }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Search response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/SearchContentResponse"
                 }
               }
             }
           },
-          "400": {
-            "description": "unexpected error",
+          "401": {
+            "description": "Authentication required or invalid bearer token",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
                 }
               }
             }
@@ -96,32 +82,60 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
+    "/save-content-by-url": {
+      "post": {
+        "operationId": "saveContentByUrl",
+        "summary": "Save content by URL",
+        "description": "Saves content into the user's library and optionally attaches tags. If HTML/text are omitted for web URLs, Memex fetches the page.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveContentByUrlRequest"
+              },
+              "examples": {
+                "web": {
+                  "summary": "Save a web page with tags",
+                  "value": {
+                    "url": "https://example.com/article",
+                    "tags": [
+                      "reading",
+                      "research"
+                    ]
+                  }
+                }
+              }
             }
           }
-        ],
+        },
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "Save response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/SaveContentByUrlResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required or invalid bearer token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
                 }
               }
             }
@@ -130,81 +144,363 @@
       }
     }
   },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+  "components": {
+    "schemas": {
+      "SearchContentRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query text. Supports inline tags like #tag-name."
+          },
+          "rewriteQuery": {
+            "type": "boolean",
+            "description": "Rewrite query before embedding generation."
+          },
+          "tag": {
+            "type": "string",
+            "description": "Tag filter string. Multiple values can be comma- or space-separated."
+          },
+          "tag_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Explicit tag IDs to filter on."
+          },
+          "tagMatchStrategy": {
+            "type": "string",
+            "enum": [
+              "AND",
+              "OR"
+            ],
+            "default": "AND"
+          },
+          "dateFrom": {
+            "type": "string",
+            "description": "Start date filter (free text or date string)."
+          },
+          "dateTo": {
+            "type": "string",
+            "description": "End date filter (free text or date string)."
+          },
+          "timeRange": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Unix timestamp in milliseconds."
+              },
+              "end": {
+                "type": "number",
+                "description": "Unix timestamp in milliseconds."
               }
+            },
+            "additionalProperties": false
+          },
+          "contentTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Restrict search to specific content types."
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "date-asc",
+              "date-desc"
+            ],
+            "default": "date-desc"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 30
+          },
+          "relevanceThreshold": {
+            "type": "number",
+            "description": "Semantic relevance threshold for hybrid search."
+          },
+          "enableRerank": {
+            "type": "boolean",
+            "default": false,
+            "description": "If true and query is non-empty, reranks top candidates with an LLM."
+          },
+          "rerankWindow": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 100,
+            "description": "Maximum candidate window used for reranking."
+          },
+          "includeReferences": {
+            "type": "boolean",
+            "default": true,
+            "description": "Advanced/internal. Defaults to true."
+          },
+          "applyBilling": {
+            "type": "boolean",
+            "default": false,
+            "description": "Advanced/internal. Used by MCP wrapper for credit deductions."
+          }
+        },
+        "additionalProperties": false
+      },
+      "SearchContentResponse": {
+        "type": "object",
+        "required": [
+          "results",
+          "extraEntities",
+          "referencesByResultId",
+          "referencedEntities",
+          "referencedTags",
+          "meta"
+        ],
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentEntity"
+            }
+          },
+          "extraEntities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentEntity"
+            }
+          },
+          "referencesByResultId": {
+            "type": "object",
+            "description": "Map of result content ID to referenced content/tag IDs.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ResultReferences"
+            }
+          },
+          "referencedEntities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentEntity"
+            }
+          },
+          "referencedTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagEntity"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/SearchMeta"
+          },
+          "error": {
+            "type": "string",
+            "description": "Present when search execution fails."
+          }
+        }
+      },
+      "SearchMeta": {
+        "type": "object",
+        "required": [
+          "offset",
+          "limit",
+          "returnedCount",
+          "rerankApplied",
+          "creditsCharged"
+        ],
+        "properties": {
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "returnedCount": {
+            "type": "integer"
+          },
+          "rerankApplied": {
+            "type": "boolean"
+          },
+          "creditsCharged": {
+            "type": "number",
+            "description": "Non-zero only when `applyBilling` is enabled (MCP wrapper path)."
+          }
+        }
+      },
+      "ResultReferences": {
+        "type": "object",
+        "required": [
+          "contentEntityIds",
+          "tagIds"
+        ],
+        "properties": {
+          "contentEntityIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tagIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+        "additionalProperties": false
+      },
+      "SaveContentByUrlRequest": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tag names. Missing tags are created and attached."
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string",
+            "description": "Optional HTML body for web saves."
+          },
+          "full_text": {
+            "type": "string",
+            "description": "Optional extracted plain text for web saves."
+          }
+        },
+        "additionalProperties": false
+      },
+      "SaveContentByUrlResponse": {
+        "type": "object",
+        "required": [
+          "entity",
+          "tags",
+          "isNew"
+        ],
+        "properties": {
+          "entity": {
+            "$ref": "#/components/schemas/ContentEntity"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagEntity"
+            }
+          },
+          "isNew": {
+            "type": "boolean"
           }
         }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Plant": {
+      },
+      "ContentEntity": {
+        "type": "object",
         "required": [
+          "id",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "normalized_url": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "number",
+            "description": "Unix timestamp in milliseconds."
+          },
+          "updated_at": {
+            "type": "number",
+            "description": "Unix timestamp in milliseconds."
+          }
+        },
+        "additionalProperties": true
+      },
+      "TagEntity": {
+        "type": "object",
+        "required": [
+          "id",
           "name"
         ],
-        "type": "object",
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "name": {
-            "description": "The name of the plant",
             "type": "string"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+          "created_at": {
+            "type": "number",
+            "description": "Unix timestamp in milliseconds."
           },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
+          "updated_at": {
+            "type": "number",
+            "description": "Unix timestamp in milliseconds."
           }
-        ]
+        },
+        "additionalProperties": true
       },
-      "Error": {
+      "UnauthorizedError": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Unauthorized"
+          }
+        },
+        "additionalProperties": true
+      },
+      "InternalServerError": {
+        "type": "object",
         "required": [
           "error",
           "message"
         ],
-        "type": "object",
         "properties": {
           "error": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "example": "Internal server error"
           },
           "message": {
             "type": "string"
           }
-        }
+        },
+        "additionalProperties": true
       }
     },
     "securitySchemes": {

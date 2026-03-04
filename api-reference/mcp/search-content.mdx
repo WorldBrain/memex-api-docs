@@ -1,0 +1,49 @@
+---
+title: "MCP tool: search_content"
+description: "Unified search via MCP"
+---
+
+`search_content` is an MCP wrapper over REST `POST /search-content`.
+
+<Card title="REST endpoint" icon="terminal" href="/api-reference/rest/search-content">
+  Open the canonical HTTP endpoint docs.
+</Card>
+
+## Input
+
+Supports the same arguments as REST search:
+
+- `query`, `rewriteQuery`
+- `tag`, `tag_ids`, `tagMatchStrategy`
+- `dateFrom`, `dateTo`, `timeRange`
+- `contentTypes`, `sortBy`, `offset`, `limit`
+- `relevanceThreshold`
+- `enableRerank`, `rerankWindow`
+
+## Wrapper behavior
+
+When called through MCP, the server additionally forces:
+
+- `includeReferences = true`
+- `applyBilling = true`
+
+## Output
+
+Matches the REST response payload:
+
+- `results`
+- `extraEntities`
+- `referencesByResultId`
+- `referencedEntities`
+- `referencedTags`
+- `meta`
+- optional `error`
+
+## Billing
+
+Credits are charged only on the MCP path:
+
+- Base query: `0.5`
+- Rerank surcharge (if applied): `0.5`
+
+If credits are insufficient, the tool returns an error payload.

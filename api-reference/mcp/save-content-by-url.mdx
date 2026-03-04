@@ -1,0 +1,32 @@
+---
+title: "MCP tool: save_content_by_url"
+description: "Save a URL and optional tags via MCP"
+---
+
+`save_content_by_url` is an MCP wrapper over REST `POST /save-content-by-url`.
+
+<Card title="REST endpoint" icon="terminal" href="/api-reference/rest/save-content-by-url">
+  Open the canonical HTTP endpoint docs.
+</Card>
+
+## Input
+
+- `url` (required)
+- `tags` (optional)
+- `title` (optional)
+- `description` (optional)
+- `html` (optional)
+- `full_text` (optional)
+
+## Behavior notes
+
+- Tag names are deduplicated and trimmed.
+- Existing tags are reused by exact name.
+- Missing tags are created and attached.
+- For web URLs without `html` and `full_text`, the server fetches page content.
+
+## Output
+
+- `entity`: saved content entity
+- `tags`: resolved tags attached in this call
+- `isNew`: whether a new library entry was created
