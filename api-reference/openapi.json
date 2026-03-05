@@ -203,7 +203,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Restrict search to specific content types."
+            "description": "Restrict search to specific content types (for example: `web`, `twitter`, `youtube`, `image`, `reddit`). `reddit` can be queried if present in your library, but public save-by-url ingestion for reddit URLs is currently unsupported."
           },
           "sortBy": {
             "type": "string",
@@ -412,31 +412,51 @@
         }
       },
       "ContentEntity": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/WebContentEntity"
+          },
+          {
+            "$ref": "#/components/schemas/TweetContentEntity"
+          },
+          {
+            "$ref": "#/components/schemas/YoutubeContentEntity"
+          },
+          {
+            "$ref": "#/components/schemas/ImageContentEntity"
+          },
+          {
+            "$ref": "#/components/schemas/RedditContentEntity"
+          },
+          {
+            "$ref": "#/components/schemas/OtherContentEntity"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "web": "#/components/schemas/WebContentEntity",
+            "twitter": "#/components/schemas/TweetContentEntity",
+            "youtube": "#/components/schemas/YoutubeContentEntity",
+            "image": "#/components/schemas/ImageContentEntity",
+            "reddit": "#/components/schemas/RedditContentEntity"
+          }
+        },
+        "description": "Union over Memex content entities. API-facing documented variants are web, twitter (tweets), youtube, image, and reddit."
+      },
+      "ContentEntityBase": {
         "type": "object",
         "required": [
           "id",
-          "type"
+          "type",
+          "created_at",
+          "updated_at"
         ],
         "properties": {
           "id": {
             "type": "string"
           },
           "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "url": {
-            "type": "string"
-          },
-          "source_url": {
-            "type": "string"
-          },
-          "normalized_url": {
             "type": "string"
           },
           "created_at": {
@@ -446,6 +466,435 @@
           "updated_at": {
             "type": "number",
             "description": "Unix timestamp in milliseconds."
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Owner user ID when present."
+          },
+          "external_id": {
+            "type": "string",
+            "description": "Deterministic/shared external identifier."
+          },
+          "tag_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tag IDs linked directly to this entity."
+          },
+          "reference_content_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Referenced content entity IDs."
+          }
+        },
+        "additionalProperties": true
+      },
+      "WebContentEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ContentEntityBase"
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "title",
+              "url",
+              "normalized_url"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "web"
+              },
+              "title": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "normalized_url": {
+                "type": "string"
+              },
+              "canonical_url": {
+                "type": "string"
+              },
+              "favicon_url": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "keywords": {
+                "type": "string"
+              },
+              "author": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string"
+              },
+              "html": {
+                "type": "string"
+              },
+              "full_text": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        ]
+      },
+      "TweetContentEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ContentEntityBase"
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "author_name",
+              "author_handle",
+              "text"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "twitter"
+              },
+              "author_name": {
+                "type": "string"
+              },
+              "author_handle": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "published_at": {
+                "type": "number",
+                "description": "Unix timestamp in milliseconds."
+              },
+              "save_type": {
+                "type": "string",
+                "enum": [
+                  "like",
+                  "retweet",
+                  "bookmark"
+                ]
+              },
+              "videos": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/TweetVideo"
+                }
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "image_analysis": {
+                "$ref": "#/components/schemas/ImageAnalysisMap"
+              }
+            },
+            "additionalProperties": true
+          }
+        ]
+      },
+      "YoutubeContentEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ContentEntityBase"
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "title",
+              "description",
+              "thumbnail_url",
+              "published_at"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "youtube"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "thumbnail_url": {
+                "type": "string"
+              },
+              "published_at": {
+                "type": "number",
+                "description": "Unix timestamp in milliseconds."
+              },
+              "transcript": {
+                "type": "object",
+                "description": "Map of language code to transcript segments.",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/YoutubeTranscriptSegment"
+                  }
+                }
+              },
+              "summary": {
+                "type": "object",
+                "description": "Map of language code to generated summary text.",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        ]
+      },
+      "ImageContentEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ContentEntityBase"
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "description"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "image"
+              },
+              "description": {
+                "type": "string"
+              },
+              "original_url": {
+                "type": "string"
+              },
+              "is_reference": {
+                "type": "boolean"
+              },
+              "source_url": {
+                "type": "string"
+              },
+              "source_title": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        ]
+      },
+      "RedditContentEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ContentEntityBase"
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "text",
+              "author_name",
+              "author_handle"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "reddit"
+              },
+              "title": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "author_name": {
+                "type": "string"
+              },
+              "author_handle": {
+                "type": "string"
+              },
+              "author_favicon_url": {
+                "type": "string"
+              },
+              "subreddit_favicon_url": {
+                "type": "string"
+              },
+              "media_urls": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "videos": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RedditVideo"
+                }
+              },
+              "permalink": {
+                "type": "string"
+              },
+              "subreddit_id": {
+                "type": "string"
+              },
+              "subreddit_name": {
+                "type": "string"
+              },
+              "image_analysis": {
+                "$ref": "#/components/schemas/ImageAnalysisMap"
+              }
+            },
+            "additionalProperties": true
+          }
+        ]
+      },
+      "OtherContentEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ContentEntityBase"
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "pdf",
+                  "annotation",
+                  "linkedin",
+                  "transcribedMedia",
+                  "chatThread",
+                  "selector",
+                  "instagram",
+                  "tiktok",
+                  "facebook",
+                  "pinterest",
+                  "snapchat",
+                  "chatgpt",
+                  "claude"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        ]
+      },
+      "TweetVideo": {
+        "type": "object",
+        "required": [
+          "variants"
+        ],
+        "properties": {
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TweetMediaVariant"
+            }
+          },
+          "duration": {
+            "type": "number"
+          },
+          "preview_url": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "TweetMediaVariant": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "content_type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "bitrate": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      },
+      "RedditVideo": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "preview_url": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ImageAnalysisMap": {
+        "type": "object",
+        "description": "Map of image URL to an analysis object.",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/ImageAnalysisEntry"
+        }
+      },
+      "ImageAnalysisEntry": {
+        "type": "object",
+        "required": [
+          "description"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "YoutubeTranscriptSegment": {
+        "type": "object",
+        "required": [
+          "offset",
+          "text",
+          "duration"
+        ],
+        "properties": {
+          "offset": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number"
           }
         },
         "additionalProperties": true

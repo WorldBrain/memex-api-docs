@@ -27,6 +27,20 @@ The endpoint returns:
 | `tags` | array | Tags resolved from this request (existing + newly created). |
 | `isNew` | boolean | `true` when a new entry is created, `false` when an existing entry is reused/updated. |
 
+## `entity` variants
+
+`entity` uses the same `ContentEntity` union as search responses.
+
+- Web: `type: "web"`
+- Tweet: `type: "twitter"`
+- YouTube: `type: "youtube"`
+- Image: `type: "image"`
+- Reddit: `type: "reddit"` (documented for compatibility; public reddit URL ingestion is currently unsupported)
+
+For full per-type metadata fields, see:
+
+- <a href="/api-reference/rest/search-content#content-entity-variants">Search content: content entity variants</a>
+
 ## Example response (`isNew: true`)
 
 ```json

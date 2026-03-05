@@ -39,6 +39,15 @@ Matches the REST response payload:
 - `meta`
 - optional `error`
 
+`ContentEntity` variants include: `web`, `twitter` (tweets), `youtube`, `image`, and `reddit`.
+
+- Reddit is documented in the response schema for compatibility/search.
+- Public REST/MCP `save_content_by_url` reddit ingestion is currently unsupported.
+
+For full per-type metadata fields, see:
+
+- <a href="/api-reference/rest/search-content#content-entity-variants">REST search content entity variants</a>
+
 ## MCP response envelope
 
 MCP returns the REST payload inside `structuredContent`, and the same payload is also serialized in `content[0].text`.

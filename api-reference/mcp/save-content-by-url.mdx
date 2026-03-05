@@ -31,6 +31,15 @@ description: "Save a URL and optional tags via MCP"
 - `tags`: resolved tags attached in this call
 - `isNew`: whether a new library entry was created
 
+`entity` supports the same typed variants as REST: `web`, `twitter` (tweets), `youtube`, `image`, and documented `reddit`.
+
+- Reddit is documented in the response schema for compatibility/search.
+- Public REST/MCP `save_content_by_url` reddit ingestion is currently unsupported.
+
+For full per-type metadata fields, see:
+
+- <a href="/api-reference/rest/search-content#content-entity-variants">REST search content entity variants</a>
+
 ## MCP response envelope
 
 Like other Memex tools, the payload appears in both `structuredContent` and `content[0].text`.
