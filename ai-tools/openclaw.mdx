@@ -1,97 +1,76 @@
 ---
-title: "OpenClaw skills setup"
-description: "Configure OpenClaw Skills for your docs workflow"
+title: "OpenClaw skill template"
+description: "Copy-paste Memex skill + API key secret location"
 icon: "asterisk"
 ---
 
-Set up OpenClaw Skills to help maintain this documentation.
+Use this page to add a Memex skill in OpenClaw format.
 
-## Prerequisites
+This page intentionally does not include OpenClaw installation steps.
 
-- OpenClaw installed
-- Your docs repository opened in a workspace
+## 1) Create the skill file
 
-## Setup
+Preferred (workspace-only):
 
-<Steps>
-<Step title="Install and verify OpenClaw">
-  ```bash
-  curl -fsSL https://openclaw.ai/install.sh | bash
-  openclaw doctor
-  openclaw status
-  ```
-</Step>
+`<your-workspace>/skills/memex-api/SKILL.md`
 
-<Step title="Create a workspace skill">
-  Create a local skill in your docs repo:
+Shared across all workspaces on your machine:
 
-  ```bash
-  mkdir -p skills/memex-docs
-  ```
+`~/.openclaw/skills/memex-api/SKILL.md`
 
-  Then add `skills/memex-docs/SKILL.md`:
+Copy and paste this file content:
 
-  ```md
-  ---
-  name: memex-docs
-  description: Keep Memex API docs accurate and publish validated changes.
-  ---
+```md
+---
+name: memex-api
+description: Search and save content in Memex via REST API.
+metadata: { "openclaw": { "primaryEnv": "MEMEX_API_KEY", "requires": { "env": ["MEMEX_API_KEY"] } } }
+---
 
-  When editing docs in this repository:
-  1. Update relevant `.mdx` and `api-reference/openapi.json` files.
-  2. Run `npx -y mint@latest validate`.
-  3. Run `npx -y mint@latest openapi-check api-reference/openapi.json` when OpenAPI changes.
-  4. Commit and push to `main`.
-  ```
-</Step>
+Use this skill when users ask to search or save content in Memex.
 
-<Step title="Discover and validate skills">
-  ```bash
-  openclaw skills list
-  openclaw skills list --eligible
-  openclaw skills info memex-docs
-  openclaw skills check
-  ```
-</Step>
+Search endpoint:
+- POST https://api.memex.garden/search-content
+- Headers:
+  - Authorization: Bearer ${MEMEX_API_KEY}
+  - Content-Type: application/json
 
-<Step title="Restart session after skill changes">
-  OpenClaw snapshots eligible skills at session start. After editing skills or
-  `openclaw.json`, start a new session (or rely on watcher refresh) before
-  testing.
-</Step>
-</Steps>
-
-## Skill locations and precedence
-
-OpenClaw loads skills from:
-
-- Workspace `./skills` (highest precedence)
-- Managed `~/.openclaw/skills`
-- Bundled skills (lowest precedence)
-
-If names conflict: workspace overrides managed, and managed overrides bundled.
-
-## Optional: install skills from ClawHub
-
-```bash
-npm i -g clawhub
-clawhub search "docs"
-clawhub install <skill-slug>
+Save endpoint:
+- POST https://api.memex.garden/save-content-by-url
+- Headers:
+  - Authorization: Bearer ${MEMEX_API_KEY}
+  - Content-Type: application/json
 ```
 
-## Per-skill config and secrets
+## 2) Put the API key secret in OpenClaw config
 
-Configure skill overrides in `~/.openclaw/openclaw.json` under
-`skills.entries.<skillKey>`:
+Set the secret in:
+
+`~/.openclaw/openclaw.json`
 
 ```json5
 {
   skills: {
     entries: {
-      "memex-docs": {
+      "memex-api": {
+        enabled: true,
+        apiKey: { source: "env", provider: "default", id: "MEMEX_API_KEY" }
+      }
+    }
+  }
+}
+```
+
+Alternative (inline value in config):
+
+```json5
+{
+  skills: {
+    entries: {
+      "memex-api": {
         enabled: true,
         env: {
-          GITHUB_TOKEN: "${GITHUB_TOKEN}"
+          MEMEX_API_KEY: "YOUR_MEMEX_API_KEY"
         }
       }
     }
@@ -99,18 +78,13 @@ Configure skill overrides in `~/.openclaw/openclaw.json` under
 }
 ```
 
-`skills.entries.*.env` and `skills.entries.*.apiKey` apply to host runs. For
-sandboxed runs, set `agents.defaults.sandbox.docker.env` (or per-agent sandbox
-env).
+`metadata.openclaw.primaryEnv` must match the env var you use for the key.
 
-<Warning>
-  Treat third-party skills as untrusted code. Review skill contents before
-  enabling them.
-</Warning>
+## 3) Reload skills
+
+Start a new OpenClaw session after changing `SKILL.md` or `openclaw.json`.
 
 ## References
 
-- [OpenClaw Skills](https://docs.openclaw.ai/skills)
-- [OpenClaw Skills Config](https://docs.openclaw.ai/tools/skills-config)
-- [OpenClaw Skills CLI](https://docs.openclaw.ai/skills/commands)
-- [OpenClaw ClawHub](https://docs.openclaw.ai/clawhub)
+- [OpenClaw skills format](https://docs.openclaw.ai/tools/skills)
+- [OpenClaw skills config](https://docs.openclaw.ai/tools/skills-config)
