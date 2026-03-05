@@ -16,8 +16,6 @@
           {
             "group": "REST API",
             "pages": [
-              "index",
-              "api-reference/introduction",
               "api-reference/rest/search-content",
               "api-reference/rest/save-content-by-url"
             ]
@@ -25,7 +23,6 @@
           {
             "group": "MCP",
             "pages": [
-              "api-reference/mcp/overview",
               "api-reference/mcp/search-content",
               "api-reference/mcp/save-content-by-url"
             ]
@@ -38,21 +35,7 @@
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Memex",
-          "href": "https://memex.garden",
-          "icon": "globe"
-        },
-        {
-          "anchor": "Source code",
-          "href": "https://github.com/WorldBrain/memex-v2",
-          "icon": "github"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/images/logo_text_dark.png",
