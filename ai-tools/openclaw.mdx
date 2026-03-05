@@ -29,6 +29,11 @@ metadata: { "openclaw": { "primaryEnv": "MEMEX_API_KEY", "requires": { "env": ["
 
 Use this skill when users ask to search or save content in Memex.
 
+For up-to-date response contracts, always check:
+- https://docs.memex.garden/api-reference/response-shapes
+- https://docs.memex.garden/api-reference/rest/search-content
+- https://docs.memex.garden/api-reference/rest/save-content-by-url
+
 Search endpoint:
 - POST https://api.memex.garden/search-content
 - Headers:
@@ -40,6 +45,10 @@ Save endpoint:
 - Headers:
   - Authorization: Bearer ${MEMEX_API_KEY}
   - Content-Type: application/json
+
+When returning results to the user:
+- Keep Memex response JSON unchanged.
+- Prefer the live docs links above when you need to verify response fields.
 ```
 
 ## 2) Put the API key secret in OpenClaw config
