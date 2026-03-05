@@ -61,6 +61,112 @@ When you save a new URL:
 - `image`
 - `reddit` (documented for compatibility; public reddit URL ingestion is currently unsupported)
 
-For complete per-type metadata fields, see:
+## Content type output shapes
 
-- [REST search: content entity variants](/api-reference/rest/search-content#content-entity-variants)
+### Shared fields on all content entities
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | string | Entity ID. |
+| `type` | string | Content type discriminator. |
+| `created_at` | number | Unix timestamp (ms). |
+| `updated_at` | number | Unix timestamp (ms). |
+| `user_id` | string | Owner user ID (when present). |
+| `external_id` | string | Deterministic/shared content identifier. |
+| `tag_ids` | string[] | Tag IDs directly attached to the entity. |
+| `reference_content_ids` | string[] | Referenced content entity IDs. |
+
+### Web (`type: "web"`)
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `title` | string | Page title. |
+| `url` | string | Original URL. |
+| `normalized_url` | string | Normalized URL used for dedupe/matching. |
+| `canonical_url` | string | Canonical URL when available. |
+| `favicon_url` | string | Favicon URL when available. |
+| `description` | string | Page description/snippet. |
+| `keywords` | string | Extracted keywords. |
+| `author` | string | Extracted author. |
+| `date` | string | Extracted/published date string. |
+| `html` | string | Stored HTML/body content when available. |
+| `full_text` | string | Extracted plain text body when available. |
+
+### Tweets (`type: "twitter"`)
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `author_name` | string | Tweet author display name. |
+| `author_handle` | string | Tweet author handle. |
+| `title` | string | Optional short generated title. |
+| `text` | string | Tweet body text. |
+| `published_at` | number | Unix timestamp (ms). |
+| `save_type` | `"like"` \| `"retweet"` \| `"bookmark"` | Save context. |
+| `videos` | object[] | Video metadata. |
+| `videos[].variants[].content_type` | string | MIME/content type for a video variant. |
+| `videos[].variants[].url` | string | Direct media URL for a variant. |
+| `videos[].variants[].bitrate` | number | Variant bitrate when available. |
+| `videos[].duration` | number | Video duration when available. |
+| `videos[].preview_url` | string | Preview image/video URL. |
+| `images` | string[] | Image URLs extracted from the tweet. |
+| `image_analysis` | object | Map of image URL to analysis metadata. |
+| `image_analysis.<imageUrl>.description` | string | Generated image description. |
+
+### YouTube (`type: "youtube"`)
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `title` | string | Video title. |
+| `description` | string | Video description. |
+| `thumbnail_url` | string | Thumbnail URL. |
+| `published_at` | number | Unix timestamp (ms). |
+| `transcript` | object | Map of language code to transcript segments. |
+| `transcript.<lang>[]` | object[] | Transcript segments per language. |
+| `transcript.<lang>[].offset` | string \| number | Segment offset. |
+| `transcript.<lang>[].text` | string | Segment text. |
+| `transcript.<lang>[].duration` | number | Segment duration. |
+| `summary` | object | Map of language code to generated summary text. |
+
+### Image (`type: "image"`)
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `description` | string | Description/caption. |
+| `original_url` | string | Original image URL. |
+| `is_reference` | boolean | Whether this is reference-only image content. |
+| `source_url` | string | Source page URL the image came from. |
+| `source_title` | string | Source page title. |
+
+### Reddit (`type: "reddit"`)
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `title` | string | Post title (if present). |
+| `text` | string | Post body text. |
+| `author_name` | string | Reddit author display name. |
+| `author_handle` | string | Reddit author handle. |
+| `author_favicon_url` | string | Author avatar URL. |
+| `subreddit_favicon_url` | string | Subreddit icon URL. |
+| `media_urls` | string[] | Media URLs extracted from the post. |
+| `videos` | object[] | Reddit video metadata. |
+| `videos[].url` | string | Direct video URL. |
+| `videos[].preview_url` | string | Video preview URL. |
+| `permalink` | string | Reddit permalink path. |
+| `subreddit_id` | string | Subreddit ID. |
+| `subreddit_name` | string | Subreddit name. |
+| `image_analysis` | object | Map of image URL to analysis metadata. |
+| `image_analysis.<imageUrl>.description` | string | Generated image description. |
+
+<Warning>
+  Reddit entities are included in the response schema for compatibility and search. Public `save-content-by-url` reddit ingestion is currently unsupported.
+</Warning>
+
+`meta` fields (search payload):
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `offset` | number | Effective offset used for this response. |
+| `limit` | number | Effective page size used for this response. |
+| `returnedCount` | number | Number of items in `results`. |
+| `rerankApplied` | boolean | `true` only if LLM rerank executed successfully. |
+| `creditsCharged` | number | Non-zero only when billing is enabled (used by MCP wrapper path). |

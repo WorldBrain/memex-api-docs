@@ -9,43 +9,33 @@
   },
   "favicon": "/images/logo600.png",
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "index",
-              "ai-tools/openclaw"
-            ]
-          }
+        "group": "Overview",
+        "pages": [
+          "index",
+          "api-reference/response-shapes"
         ]
       },
       {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "Output contract",
-            "pages": [
-              "api-reference/response-shapes"
-            ]
-          },
-          {
-            "group": "REST API",
-            "pages": [
-              "api-reference/rest/search-content",
-              "api-reference/rest/save-content-by-url"
-            ]
-          },
-          {
-            "group": "MCP",
-            "pages": [
-              "api-reference/mcp/overview",
-              "api-reference/mcp/search-content",
-              "api-reference/mcp/save-content-by-url"
-            ]
-          }
+        "group": "REST API",
+        "pages": [
+          "api-reference/rest/search-content",
+          "api-reference/rest/save-content-by-url"
+        ]
+      },
+      {
+        "group": "MCP",
+        "pages": [
+          "api-reference/mcp/overview",
+          "api-reference/mcp/search-content",
+          "api-reference/mcp/save-content-by-url"
+        ]
+      },
+      {
+        "group": "OpenClaw",
+        "pages": [
+          "ai-tools/openclaw"
         ]
       }
     ]
