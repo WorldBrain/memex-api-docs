@@ -23,6 +23,17 @@ For Memex MCP tools, successful `tools/call` responses contain:
 
 In practice, `structuredContent` is the same object serialized into `content[0].text`.
 
+## Output shape parity
+
+MCP does not define a different Memex payload schema. It wraps the same operation payloads as REST:
+
+- `search_content` => same payload shape as REST `POST /search-content`
+- `save_content_by_url` => same payload shape as REST `POST /save-content-by-url`
+
+Canonical contract:
+
+- [Response shapes](/api-reference/response-shapes)
+
 ## Authentication
 
 Send either:

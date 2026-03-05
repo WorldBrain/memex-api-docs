@@ -1,0 +1,66 @@
+---
+title: "Response shapes"
+description: "Output shape parity across REST, MCP, and OpenClaw"
+---
+
+Memex keeps response shapes consistent across integration surfaces.
+
+- REST returns the operation payload directly.
+- MCP returns the same payload in `result.structuredContent` (and serialized in `result.content[0].text`).
+- OpenClaw skills should return these same payloads unchanged from the REST call.
+
+## Search response shape (`search-content` / `search_content`)
+
+This shape is the same across REST, MCP, and OpenClaw skill usage:
+
+```ts
+{
+  results: ContentEntity[]
+  extraEntities: ContentEntity[]
+  referencesByResultId: Record<string, { contentEntityIds: string[]; tagIds: string[] }>
+  referencedEntities: ContentEntity[]
+  referencedTags: TagEntity[]
+  meta: {
+    offset: number
+    limit: number
+    returnedCount: number
+    rerankApplied: boolean
+    creditsCharged: number
+  }
+  error?: string
+}
+```
+
+## Save response shape (`save-content-by-url` / `save_content_by_url`)
+
+This shape is the same across REST, MCP, and OpenClaw skill usage:
+
+```ts
+{
+  entity: ContentEntity
+  tags: TagEntity[]
+  isNew: boolean
+}
+```
+
+## Save + search consistency
+
+When you save a new URL:
+
+- `isNew` indicates whether it was newly created.
+- `entity` uses the same `ContentEntity` schema as search results.
+- The same content record can later appear in `search-content` results with the same core entity structure.
+
+## Shared content schema
+
+`ContentEntity` metadata variants are shared across all surfaces and operations:
+
+- `web`
+- `twitter` (tweets)
+- `youtube`
+- `image`
+- `reddit` (documented for compatibility; public reddit URL ingestion is currently unsupported)
+
+For complete per-type metadata fields, see:
+
+- [REST search: content entity variants](/api-reference/rest/search-content#content-entity-variants)

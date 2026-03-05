@@ -19,6 +19,16 @@ The endpoint returns:
 - `tags: TagEntity[]`
 - `isNew: boolean`
 
+## Cross-interface parity
+
+This save response shape is identical across:
+
+- REST `POST /save-content-by-url`
+- MCP `save_content_by_url` (inside `result.structuredContent`)
+- OpenClaw skill calls that proxy this endpoint
+
+The `entity` object is the same `ContentEntity` schema used by search results.
+
 ### Field behavior
 
 | Field | Type | Meaning |

@@ -84,6 +84,17 @@ Alternative (inline value in config):
 
 Start a new OpenClaw session after changing `SKILL.md` or `openclaw.json`.
 
+## 4) Return the Memex payload unchanged
+
+When this skill calls Memex endpoints, return the JSON response object as-is.
+
+- For `search-content`, keep the full search payload shape unchanged.
+- For `save-content-by-url`, keep `{ entity, tags, isNew }` unchanged.
+
+Canonical contract:
+
+- [Response shapes](/api-reference/response-shapes)
+
 ## References
 
 - [OpenClaw skills format](https://docs.openclaw.ai/tools/skills)

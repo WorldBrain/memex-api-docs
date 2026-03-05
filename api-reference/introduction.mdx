@@ -8,6 +8,18 @@ Memex exposes two API surfaces:
 - **REST API** (canonical): direct HTTP endpoints.
 - **MCP server**: tool interface that wraps the same backend handlers.
 
+## Output shape parity
+
+For each operation, Memex keeps the same response payload shape across:
+
+- REST
+- MCP (`result.structuredContent`)
+- OpenClaw skills (when they return REST payloads unchanged)
+
+See the canonical contract page:
+
+- [Response shapes](/api-reference/response-shapes)
+
 ## Base URLs
 
 - REST (public router): `https://api.memex.garden`
