@@ -11,39 +11,29 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
-          {
-            "group": "Getting started",
-            "pages": [
-              "index",
-              "ai-tools/openclaw"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
           {
             "group": "REST API",
             "pages": [
+              "index",
+              "api-reference/introduction",
               "api-reference/rest/search-content",
               "api-reference/rest/save-content-by-url"
             ]
           },
           {
-            "group": "MCP server",
+            "group": "MCP",
             "pages": [
               "api-reference/mcp/overview",
               "api-reference/mcp/search-content",
               "api-reference/mcp/save-content-by-url"
+            ]
+          },
+          {
+            "group": "Openclaw",
+            "pages": [
+              "ai-tools/openclaw"
             ]
           }
         ]
