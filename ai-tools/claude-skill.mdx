@@ -1,0 +1,99 @@
+---
+title: "Claude Skill template"
+description: "Copy-paste Memex skill for Claude Code + API key setup"
+icon: "sparkles"
+---
+
+Use this page to add a Memex skill in Claude Code format.
+
+## 1) Create the skill file
+
+Create this folder and file in your project:
+
+`./.claude/skills/memex-api/SKILL.md`
+
+Copy and paste this exact file:
+
+```md
+---
+name: memex-api
+description: Search and save content in Memex via REST API. Use this skill when users ask to find, filter, or save web content, tweets, YouTube content, or images in Memex.
+---
+
+You are the Memex API skill.
+
+Authentication
+- Use `Authorization: Bearer ${MEMEX_API_KEY}` on every request.
+- Use `Content-Type: application/json`.
+
+Base URL
+- `https://api.memex.garden`
+
+Endpoints
+1) Search content
+- `POST /search-content`
+- Request body example:
+  ```json
+  {
+    "query": "agentic coding workflows",
+    "limit": 20,
+    "offset": 0
+  }
+  ```
+
+2) Save content by URL
+- `POST /save-content-by-url`
+- Request body example:
+  ```json
+  {
+    "url": "https://example.com/article"
+  }
+  ```
+
+Rules
+- Return Memex JSON payloads unchanged.
+- Do not remap field names.
+- If a request fails, return the API error body and status code.
+- Maximum response page size is 500 results per call.
+
+Pricing notes
+- Each MCP tool-level request consumes 1 credit.
+- If rerank is requested, it costs 1 additional credit per request.
+
+Response contract (always the same across REST, MCP, OpenClaw, and Claude skill)
+- https://docs.memex.garden/api-reference/response-shapes
+
+REST endpoint docs
+- https://docs.memex.garden/api-reference/rest/search-content
+- https://docs.memex.garden/api-reference/rest/save-content-by-url
+```
+
+## 2) Set the API key secret
+
+Set your key as an environment variable before starting Claude Code:
+
+```bash
+export MEMEX_API_KEY="YOUR_MEMEX_API_KEY"
+```
+
+Claude Code can then use `${MEMEX_API_KEY}` from your shell environment.
+
+## 3) Verify the skill is available
+
+In Claude Code, run:
+
+```text
+/skills
+```
+
+You should see `memex-api` in the available skills list.
+
+## 4) Keep response parsing up to date
+
+When implementing clients, always use the live response contract docs:
+
+- [Response shapes](/api-reference/response-shapes)
+
+## References
+
+- [Claude Skills docs](https://code.claude.com/docs/en/skills)

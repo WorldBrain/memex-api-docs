@@ -42,6 +42,12 @@
         "pages": [
           "ai-tools/openclaw"
         ]
+      },
+      {
+        "group": "Claude Skill",
+        "pages": [
+          "ai-tools/claude-skill"
+        ]
       }
     ]
   },
