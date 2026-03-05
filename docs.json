@@ -9,30 +9,25 @@
   },
   "favicon": "/images/logo600.png",
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "Documentation",
-        "groups": [
-          {
-            "group": "REST API",
-            "pages": [
-              "api-reference/rest/search-content",
-              "api-reference/rest/save-content-by-url"
-            ]
-          },
-          {
-            "group": "MCP",
-            "pages": [
-              "api-reference/mcp/search-content",
-              "api-reference/mcp/save-content-by-url"
-            ]
-          },
-          {
-            "group": "Openclaw",
-            "pages": [
-              "ai-tools/openclaw"
-            ]
-          }
+        "group": "REST API",
+        "pages": [
+          "api-reference/rest/search-content",
+          "api-reference/rest/save-content-by-url"
+        ]
+      },
+      {
+        "group": "MCP",
+        "pages": [
+          "api-reference/mcp/search-content",
+          "api-reference/mcp/save-content-by-url"
+        ]
+      },
+      {
+        "group": "Openclaw",
+        "pages": [
+          "ai-tools/openclaw"
         ]
       }
     ]
