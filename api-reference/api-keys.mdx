@@ -1,0 +1,48 @@
+---
+title: "API Keys"
+description: "Where to find your key and how to use it across all endpoints"
+---
+
+Use a Memex API key from Settings for all public integration surfaces:
+
+- REST API endpoints
+- MCP tools
+- OpenClaw skill calls
+
+## Where to find your key
+
+1. Open Memex at `https://memex.garden`.
+2. Go to **Settings**.
+3. Open **API Keys**.
+4. Create/copy your key.
+
+## Use the same key everywhere
+
+### REST
+
+Use the key as Bearer auth:
+
+```http
+Authorization: Bearer YOUR_MEMEX_API_KEY
+```
+
+### MCP
+
+Use the same key in MCP headers:
+
+```http
+x-user-id: YOUR_USER_ID
+x-api-key: YOUR_MEMEX_API_KEY
+```
+
+### OpenClaw
+
+Store the same key as `MEMEX_API_KEY` in your OpenClaw config and use it in the skill.
+
+- See [OpenClaw skill template](/ai-tools/openclaw)
+
+## Response formats
+
+The key grants access, but response contracts stay the same across surfaces.
+
+- See [Response shapes](/api-reference/response-shapes)

@@ -13,8 +13,13 @@
       {
         "group": "Overview",
         "pages": [
-          "index",
           "api-reference/response-shapes"
+        ]
+      },
+      {
+        "group": "API Keys",
+        "pages": [
+          "api-reference/api-keys"
         ]
       },
       {

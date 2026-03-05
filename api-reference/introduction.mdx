@@ -30,8 +30,10 @@ See the canonical contract page:
 
 | Surface | Auth | Billing behavior | Backing handlers |
 | --- | --- | --- | --- |
-| REST | `Authorization: Bearer <access_token>` | No MCP credit deductions by default | `searchContentApi`, `saveContentByUrl` |
-| MCP | `x-user-id` + `x-api-key` (or `userId` / `apiKey` query params) | `search_content`: `1` credit per request, plus `+1` credit when rerank is used | Same handlers, with MCP wrapper flags |
+| REST | `Authorization: Bearer <api_key>` | No MCP credit deductions by default | `searchContentApi`, `saveContentByUrl` |
+| MCP | `x-user-id` + `x-api-key` (or `userId` / `apiKey` query params), using the same key | `search_content`: `1` credit per request, plus `+1` credit when rerank is used | Same handlers, with MCP wrapper flags |
+
+See [API Keys](/api-reference/api-keys) for where to create/find your key in Settings.
 
 ## Search limits
 
