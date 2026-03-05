@@ -221,6 +221,8 @@
           "limit": {
             "type": "integer",
             "minimum": 1,
+            "maximum": 500,
+            "description": "Maximum number of results returned per call.",
             "default": 30
           },
           "relevanceThreshold": {
@@ -327,7 +329,7 @@
           },
           "creditsCharged": {
             "type": "number",
-            "description": "Non-zero only when `applyBilling` is enabled (MCP wrapper path)."
+            "description": "Non-zero only when `applyBilling` is enabled (MCP wrapper path). Typical MCP values: `1` base, `2` when rerank is charged."
           }
         }
       },

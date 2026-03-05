@@ -10,3 +10,95 @@ openapi: "POST /search-content"
 <Card title="MCP wrapper page" icon="bot" href="/api-reference/mcp/search-content">
   See MCP-specific auth and billing behavior for this operation.
 </Card>
+
+## Response format
+
+The endpoint always returns this top-level object shape:
+
+- `results: ContentEntity[]`
+- `extraEntities: ContentEntity[]`
+- `referencesByResultId: Record<string, { contentEntityIds: string[]; tagIds: string[] }>`
+- `referencedEntities: ContentEntity[]`
+- `referencedTags: TagEntity[]`
+- `meta: { offset; limit; returnedCount; rerankApplied; creditsCharged }`
+- `error?: string`
+
+## Result limits
+
+- The `limit` request parameter is capped at `500` results per call.
+
+### `meta` fields
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `offset` | number | Effective offset used for this response. |
+| `limit` | number | Effective page size used for this response. |
+| `returnedCount` | number | Number of items in `results`. |
+| `rerankApplied` | boolean | `true` only if LLM rerank executed successfully. |
+| `creditsCharged` | number | Non-zero only when billing is enabled (used by MCP wrapper path). |
+
+## Example success response
+
+```json
+{
+  "results": [
+    {
+      "id": "98cc2351-920e-4948-b54c-c359ecc4624e",
+      "type": "web",
+      "title": "Vector databases in production",
+      "url": "https://example.com/vector-db"
+    }
+  ],
+  "extraEntities": [],
+  "referencesByResultId": {
+    "98cc2351-920e-4948-b54c-c359ecc4624e": {
+      "contentEntityIds": [
+        "d8afe847-7843-5db3-87cf-f72c8d3f9516"
+      ],
+      "tagIds": [
+        "2df87b47-2c89-4a3d-8c2a-566ea3adfe95"
+      ]
+    }
+  },
+  "referencedEntities": [
+    {
+      "id": "d8afe847-7843-5db3-87cf-f72c8d3f9516",
+      "type": "annotation",
+      "description": "Useful benchmark notes"
+    }
+  ],
+  "referencedTags": [
+    {
+      "id": "2df87b47-2c89-4a3d-8c2a-566ea3adfe95",
+      "name": "research"
+    }
+  ],
+  "meta": {
+    "offset": 0,
+    "limit": 30,
+    "returnedCount": 1,
+    "rerankApplied": false,
+    "creditsCharged": 0
+  }
+}
+```
+
+## Example response with `error`
+
+```json
+{
+  "results": [],
+  "extraEntities": [],
+  "referencesByResultId": {},
+  "referencedEntities": [],
+  "referencedTags": [],
+  "meta": {
+    "offset": 0,
+    "limit": 0,
+    "returnedCount": 0,
+    "rerankApplied": false,
+    "creditsCharged": 0
+  },
+  "error": "User not authenticated"
+}
+```

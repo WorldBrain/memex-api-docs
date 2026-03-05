@@ -30,3 +30,36 @@ description: "Save a URL and optional tags via MCP"
 - `entity`: saved content entity
 - `tags`: resolved tags attached in this call
 - `isNew`: whether a new library entry was created
+
+## MCP response envelope
+
+Like other Memex tools, the payload appears in both `structuredContent` and `content[0].text`.
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "call-1",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"entity\":{\"id\":\"98cc2351-920e-4948-b54c-c359ecc4624e\",\"type\":\"web\",\"url\":\"https://example.com/article\"},\"tags\":[{\"id\":\"2df87b47-2c89-4a3d-8c2a-566ea3adfe95\",\"name\":\"reading\"}],\"isNew\":true}"
+      }
+    ],
+    "structuredContent": {
+      "entity": {
+        "id": "98cc2351-920e-4948-b54c-c359ecc4624e",
+        "type": "web",
+        "url": "https://example.com/article"
+      },
+      "tags": [
+        {
+          "id": "2df87b47-2c89-4a3d-8c2a-566ea3adfe95",
+          "name": "reading"
+        }
+      ],
+      "isNew": true
+    }
+  }
+}
+```

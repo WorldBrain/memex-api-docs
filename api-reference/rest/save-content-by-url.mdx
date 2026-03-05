@@ -10,3 +10,58 @@ openapi: "POST /save-content-by-url"
 <Card title="MCP wrapper page" icon="bot" href="/api-reference/mcp/save-content-by-url">
   See MCP-specific auth and usage notes for this operation.
 </Card>
+
+## Response format
+
+The endpoint returns:
+
+- `entity: ContentEntity`
+- `tags: TagEntity[]`
+- `isNew: boolean`
+
+### Field behavior
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `entity` | object | The saved or updated library entry hydrated from storage. |
+| `tags` | array | Tags resolved from this request (existing + newly created). |
+| `isNew` | boolean | `true` when a new entry is created, `false` when an existing entry is reused/updated. |
+
+## Example response (`isNew: true`)
+
+```json
+{
+  "entity": {
+    "id": "98cc2351-920e-4948-b54c-c359ecc4624e",
+    "type": "web",
+    "url": "https://example.com/article",
+    "title": "Example article"
+  },
+  "tags": [
+    {
+      "id": "2df87b47-2c89-4a3d-8c2a-566ea3adfe95",
+      "name": "reading"
+    },
+    {
+      "id": "a5a0bca8-3e5e-4f47-a1ee-f0ef9a84b2fd",
+      "name": "research"
+    }
+  ],
+  "isNew": true
+}
+```
+
+## Example response (`isNew: false`)
+
+```json
+{
+  "entity": {
+    "id": "98cc2351-920e-4948-b54c-c359ecc4624e",
+    "type": "web",
+    "url": "https://example.com/article",
+    "title": "Example article"
+  },
+  "tags": [],
+  "isNew": false
+}
+```

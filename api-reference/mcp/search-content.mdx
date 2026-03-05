@@ -16,7 +16,7 @@ Supports the same arguments as REST search:
 - `query`, `rewriteQuery`
 - `tag`, `tag_ids`, `tagMatchStrategy`
 - `dateFrom`, `dateTo`, `timeRange`
-- `contentTypes`, `sortBy`, `offset`, `limit`
+- `contentTypes`, `sortBy`, `offset`, `limit` (max `500`)
 - `relevanceThreshold`
 - `enableRerank`, `rerankWindow`
 
@@ -39,11 +39,52 @@ Matches the REST response payload:
 - `meta`
 - optional `error`
 
+## MCP response envelope
+
+MCP returns the REST payload inside `structuredContent`, and the same payload is also serialized in `content[0].text`.
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "call-1",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"results\":[...],\"extraEntities\":[],\"referencesByResultId\":{},\"referencedEntities\":[],\"referencedTags\":[],\"meta\":{\"offset\":0,\"limit\":5,\"returnedCount\":1,\"rerankApplied\":false,\"creditsCharged\":1}}"
+      }
+    ],
+    "structuredContent": {
+      "results": [
+        {
+          "id": "98cc2351-920e-4948-b54c-c359ecc4624e",
+          "type": "web",
+          "title": "Vector databases in production"
+        }
+      ],
+      "extraEntities": [],
+      "referencesByResultId": {},
+      "referencedEntities": [],
+      "referencedTags": [],
+      "meta": {
+        "offset": 0,
+        "limit": 5,
+        "returnedCount": 1,
+        "rerankApplied": false,
+        "creditsCharged": 1
+      }
+    }
+  }
+}
+```
+
+Use `result.structuredContent` as the canonical parsed object.
+
 ## Billing
 
 Credits are charged only on the MCP path:
 
-- Base query: `0.5`
-- Rerank surcharge (if applied): `0.5`
+- Base query: `1`
+- Rerank surcharge (if applied): `+1`
 
 If credits are insufficient, the tool returns an error payload.

@@ -44,5 +44,5 @@ curl -X POST "https://mcp.memex.garden/mcp" \
 ```
 
 <Note>
-  MCP `search_content` deducts query/rerank credits. REST calls do not apply MCP billing by default.
+  MCP `search_content` costs `1` credit per call, and rerank adds `+1` more credit. Search `limit` is capped at `500` results per call.
 </Note>

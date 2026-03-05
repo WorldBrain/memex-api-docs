@@ -14,6 +14,15 @@ It exposes two tools:
 
 Both call the same backend handlers as the REST API.
 
+## Tool result format
+
+For Memex MCP tools, successful `tools/call` responses contain:
+
+- `result.content`: text blocks (first block is JSON text)
+- `result.structuredContent`: parsed object payload (recommended)
+
+In practice, `structuredContent` is the same object serialized into `content[0].text`.
+
 ## Authentication
 
 Send either:
@@ -60,5 +69,5 @@ curl -X POST "https://mcp.memex.garden/mcp" \
 ```
 
 <Warning>
-  MCP `search_content` deducts credits (base query + optional rerank surcharge). Direct REST calls do not apply MCP billing unless internal flags are explicitly enabled.
+  MCP `search_content` deducts `1` credit per request, plus `+1` credit if rerank is enabled. Direct REST calls do not apply MCP billing unless internal flags are explicitly enabled.
 </Warning>

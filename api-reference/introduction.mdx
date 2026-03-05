@@ -19,7 +19,11 @@ Memex exposes two API surfaces:
 | Surface | Auth | Billing behavior | Backing handlers |
 | --- | --- | --- | --- |
 | REST | `Authorization: Bearer <access_token>` | No MCP credit deductions by default | `searchContentApi`, `saveContentByUrl` |
-| MCP | `x-user-id` + `x-api-key` (or `userId` / `apiKey` query params) | Applies MCP credit deductions for `search_content` | Same handlers, with MCP wrapper flags |
+| MCP | `x-user-id` + `x-api-key` (or `userId` / `apiKey` query params) | `search_content`: `1` credit per request, plus `+1` credit when rerank is used | Same handlers, with MCP wrapper flags |
+
+## Search limits
+
+- `search-content` / `search_content` supports `limit` up to `500` results per call.
 
 ## Tool mapping
 
